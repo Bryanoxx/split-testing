@@ -11,16 +11,19 @@
   "scripts": {
     "serve": "esbuild example/app.ts --outfile=example/out.js --bundle --serve=8000",
     "bundle": "esbuild src/index.ts --global-name=\"SplitTesting\" --bundle --sourcemap --minify --platform=browser --outfile=dist/bundle.js",
-    "build": "tsc",
+    "build": "tsc && yarn bundle",
     "dev": "yarn bundle --watch",
     "prepublish": "yarn build && yarn bundle"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bryanoxx/split-testing.git"
   },
   "devDependencies": {
     "@fal-works/esbuild-plugin-global-externals": "^2.1.2",
     "@types/seedrandom": "^3.0.1",
     "esbuild": "^0.13.9",
     "ts-standard": "^10.0.0",
-    "tsm": "^2.1.3",
     "typescript": "^4.4.4"
   },
   "dependencies": {

@@ -59,13 +59,13 @@ export function getLocalVariantName (experimentName: string): string | null {
  * @param {{ experimentName: string, variants: Variant[], seed?: string, callback?: (variant: Variant) => void }} { experimentName, variants, seed, callback }
  */
 export function setLocalVariant ({ experimentName, variants, seed, callback }: { experimentName: string, variants: Variant[], seed?: string, callback?: (variant: Variant) => void }): void {
-  // Random picking of the variant (or constant if seed provided) and setting it in localStorage
+  // Random picking of the variant (or constant if seed provided) and saving it in localStorage
   const randomIndex = getRandomIndex(variants, seed)
   const randomVariant = variants[randomIndex]
   localStorage.setItem(`${experimentName}-variant-name`, randomVariant.name)
   log(`New local variant: ${randomVariant.name} ${seed !== undefined ? '(with seed)' : ''}`)
 
-  // Saving the seed if provided
+  // Saving the seed if provided, for further verifications next time the user come
   if (seed !== undefined) {
     localStorage.setItem(`${experimentName}-seed`, seed)
   }

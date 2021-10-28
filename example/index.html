@@ -7,7 +7,7 @@
   <title>Document</title>
 </head>
 <body>
-  <h1 data-variant-name></h1>
+  <h1>Variant: <span data-variant-name></span></h1>
   <script defer src="../dist/bundle.js" onload="loadExperiment()"></script>
   <script>
     function loadExperiment() {
@@ -30,7 +30,7 @@
 
       // Get the variant
       const variantName = SplitTesting.getLocalVariantName(experimentName)
-      document.body.querySelector('[data-variant-name]').textContent = variant.name
+      document.body.querySelector('[data-variant-name]').textContent = variantName
     }
   </script>
 </body>
