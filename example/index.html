@@ -11,14 +11,14 @@
   <script defer src="../dist/bundle.js" onload="loadExperiment()"></script>
   <script>
     function loadExperiment() {
-      // Configuration
+      // Configuration of the experiment 
+      const experimentName = 'test1'
       const variants = [
         { name: 'control' },
         { name: 'test' }
       ]
 
-      // Mise en place de l'expérience
-      const experimentName = 'test1'
+      // Setting up of the experiment
       SplitTesting.setExperiment({
         name: experimentName,
         variants,
@@ -28,7 +28,7 @@
         }
       })
 
-      // Get the variant
+      // Get the local variant
       const variantName = SplitTesting.getLocalVariantName(experimentName)
       document.body.querySelector('[data-variant-name]').textContent = variantName
     }
