@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1 data-variant-name></h1>
+  <script defer src="../dist/bundle.js" onload="loadExperiment()"></script>
+  <script>
+    function loadExperiment() {
+      // Configuration
+      const variants = [
+        { name: 'control' },
+        { name: 'test' }
+      ]
+
+      // Mise en place de l'expérience
+      const experimentName = 'test1'
+      SplitTesting.setExperiment({
+        name: experimentName,
+        variants,
+        onSetLocalVariant: (variant) => {
+          // When the variant is first picked for the user
+          console.log(`Variant ${variant.name}`)
+        }
+      })
+
+      // Get the variant
+      const variantName = SplitTesting.getLocalVariantName(experimentName)
+      document.body.querySelector('[data-variant-name]').textContent = variant.name
+    }
+  </script>
+</body>
+</html>
