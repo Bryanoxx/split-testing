@@ -66,12 +66,15 @@ SplitTesting.setExperiment({
 
 **You can for example put the ID of a user as a seed, thus : the variant will be persitent whatever the device used by the user.**
 
-## Use with `<script>`
+## CDN source
 
-If you don't use NodeJS at all, you can download the file `dist/bundle.js`, you will then have a global variable `SplitTesting` available, containing all the methods.
+If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
+```html
+<script src="https://unpkg.com/split-testing/dist/bundle.js"></script>
+```
+You will then have a global variable `SplitTesting` available, containing all the methods you need.
 
 ## Todo
 
 - Adding `weight` to variants for changing their probability to be picked
-- Adding a test library for validating the methods the randomness
-- Making SplitTesting.js available through a CDN
+- Adding a test library for validating the methods and the randomness

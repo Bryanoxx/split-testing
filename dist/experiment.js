@@ -61,6 +61,7 @@ exports.getLocalVariantName = getLocalVariantName;
  */
 function setLocalVariant({ experimentName, variants, seed, callback }) {
     // Random picking of the variant (or constant if seed provided) and saving it in localStorage
+    // TODO: take into account the weight of the variants
     const randomIndex = (0, utils_1.getRandomIndex)(variants, seed);
     const randomVariant = variants[randomIndex];
     localStorage.setItem(`${experimentName}-variant-name`, randomVariant.name);
@@ -68,6 +69,9 @@ function setLocalVariant({ experimentName, variants, seed, callback }) {
     // Saving the seed if provided, for further verifications next time the user come
     if (seed !== undefined) {
         localStorage.setItem(`${experimentName}-seed`, seed);
+    }
+    else {
+        localStorage.removeItem(`${experimentName}-seed`);
     }
     // Executing the callback if provided
     if (callback !== undefined) {
