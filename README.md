@@ -69,6 +69,19 @@ SplitTesting.setExperiment({
 
 **You can for example put the ID of a user as a seed, thus : the variant will be persitent whatever the device used by the user.**
 
+## Debug mode
+
+The debug mode will log various messages of information into the console, allowing you to better understand what the library is doing.
+
+To activate it, simply add `debug: true` to the experiment options :
+```javascript
+SplitTesting.setExperiment({
+  name: experimentName,
+  variants,
+  debug: true
+})
+```
+
 ## CDN source
 
 If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
@@ -79,7 +92,6 @@ You will then have a global variable `SplitTesting` available, containing all th
 
 ## Todo
 
-- Documenting the _debug mode_
 - Option for allowing or not the _seed conflict check_
 - Adding `weight` to variants for changing their probability to be picked
 - Adding a test library for validating the methods and the randomness
