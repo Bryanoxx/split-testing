@@ -8,10 +8,9 @@
     "/dist"
   ],
   "scripts": {
-    "serve": "esbuild example/app.ts --outfile=example/out.js --bundle --serve=8000",
-    "bundle": "esbuild src/index.ts --global-name=\"SplitTesting\" --bundle --sourcemap --minify --platform=browser --outfile=dist/bundle.js",
     "build": "tsc && yarn bundle",
-    "dev": "yarn bundle --watch",
+    "dev": "esbuild example/app.js --global-name=\"SplitTesting\" --bundle --platform=browser --outfile=example/out.js --serve=8000",
+    "bundle": "esbuild src/index.ts --global-name=\"SplitTesting\" --bundle --sourcemap --minify --platform=browser --outfile=dist/bundle.js",
     "prepublish": "yarn build && yarn bundle",
     "preversion": "yarn build && yarn bundle"
   },

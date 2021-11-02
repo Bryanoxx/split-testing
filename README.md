@@ -1,6 +1,6 @@
 # SplitTesting.js
 
-This library allows you to implement split testing to your website, in a multi-variant way (A/B, A/B/C, etc...).
+This library allows you to easily implement split testing to your website, in a multi-variant way (A/B, A/B/C, etc...).
 It's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
 
 Goals of this library :
@@ -76,5 +76,8 @@ You will then have a global variable `SplitTesting` available, containing all th
 
 ## Todo
 
+- Documenting the _debug mode_
+- Option for allowing or not the _seed conflict check_
+- Export methods `onVariantPicked` and `onVariantDetected`
 - Adding `weight` to variants for changing their probability to be picked
 - Adding a test library for validating the methods and the randomness

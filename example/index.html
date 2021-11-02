@@ -7,31 +7,9 @@
   <title>Document</title>
 </head>
 <body>
-  <h1>Variant: <span data-variant-name></span></h1>
-  <script defer src="../dist/bundle.js" onload="loadExperiment()"></script>
-  <script>
-    function loadExperiment() {
-      // Configuration of the experiment 
-      const experimentName = 'test1'
-      const variants = [
-        { name: 'control' },
-        { name: 'test' }
-      ]
-
-      // Setting up of the experiment
-      SplitTesting.setExperiment({
-        name: experimentName,
-        variants,
-        onSetLocalVariant: (variant) => {
-          // When the variant is first picked for the user
-          console.log(`Variant ${variant.name}`)
-        }
-      })
-
-      // Get the local variant
-      const variantName = SplitTesting.getLocalVariantName(experimentName)
-      document.body.querySelector('[data-variant-name]').textContent = variantName
-    }
+  <h1 data-variant></h1>
+  <script type="module" src="http://127.0.0.1:8000/out.js">
+    // => `npm run dev` or `yarn dev`
   </script>
 </body>
 </html>
