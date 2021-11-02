@@ -7,5 +7,5 @@ export interface ExperimentOptions {
     variants: Variant[];
     seed?: string;
     debug?: boolean;
-    onSetLocalVariant?: (variant: Variant) => void;
+    onVariantPicked?: (variant: Variant) => void;
 }

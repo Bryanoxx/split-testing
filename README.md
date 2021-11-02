@@ -23,31 +23,34 @@ npm install split-testing
 This is how you would use SplitTesting.js in ES6 to create an experiment:
 
 ```javascript
-import * as SplitTesting from 'split-testing';
+import { setExperiment, getPickedVariant } from 'split-testing';
 
 // Configuration of the experiment 
 const experimentName = 'test1'
 const variants = [
-  { name: 'control' },
-  { name: 'test' }
+  { name: 'control', data: {} },
+  { name: 'test', data: {} }
 ]
 
-// Setting up of the experiment
-SplitTesting.setExperiment({
+// Setting up the experiment
+setExperiment({
   name: experimentName,
   variants,
-  onSetLocalVariant: (variant) => {
-    // Callback when the variant is first picked for the user
-    console.log(`Variant ${variant.name}`)
+  onVariantPicked: (pickedVariant) => {
+    // When the variant is first picked for the user (= first-load of the page)
+    console.log(`Variant picked, named "${pickedVariant.name}"`)
   }
 })
 ```
 
-If no variant is detected in `localStorage`,  one will be randomly picked (same chance for all the variants), which will trigger the `onSetLocalVariant` method, and make the persistant variant accessible like so :
+If no variant is detected in `localStorage`,  one will be randomly picked (same chance for all the variants), which will trigger the `onVariantPicked` method if provided.
+
+The code is synchrone, so after the execution of `setExperiment` you can directly access the persistant variant like so :
 ```javascript
-import { getLocalVariantName } from 'split-testing';
-const localVariantName = getLocalVariantName(experimentName)
+const pickedVariant = getPickedVariant({ experimentName, variants })
 ```
+
+The name of the experiment is used in the property name of the localStorage, that's why we need to pass it in the different methods for getting the saved variant.
 
 ## Advance Usage
 
@@ -70,7 +73,7 @@ SplitTesting.setExperiment({
 
 If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
 ```html
-<script src="https://unpkg.com/split-testing/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing/dist/bundle.js"></script>
 ```
 You will then have a global variable `SplitTesting` available, containing all the methods you need.
 
@@ -78,6 +81,5 @@ You will then have a global variable `SplitTesting` available, containing all th
 
 - Documenting the _debug mode_
 - Option for allowing or not the _seed conflict check_
-- Export methods `onVariantPicked` and `onVariantDetected`
 - Adding `weight` to variants for changing their probability to be picked
 - Adding a test library for validating the methods and the randomness

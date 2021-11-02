@@ -5,7 +5,7 @@ import type { Variant, ExperimentOptions } from './types';
  * @export
  * @param {ExperimentOptions} { name, variants, seed, debug, onSetLocalVariant }
  */
-export declare function setExperiment({ name, variants, seed, debug, onSetLocalVariant }: ExperimentOptions): void;
+export declare function setExperiment({ name, variants, seed, debug, onVariantPicked }: ExperimentOptions): void;
 /**
  * Get the local variant of the experiment.
  *
@@ -13,18 +13,29 @@ export declare function setExperiment({ name, variants, seed, debug, onSetLocalV
  * @param {string} experimentName
  * @return {*}  {(Variant | null)}
  */
-export declare function getLocalVariantName(experimentName: string): string | null;
+export declare function getPickedVariantName(experimentName: string): string | null;
+/**
+ * Get all the details of a variant with its name
+ *
+ * @export
+ * @param {{ variantName: string, variants: Variant[]}} { variantName, variants }
+ * @return {*}  {(Variant | undefined)}
+ */
+export declare function getPickedVariant({ experimentName, variants }: {
+    experimentName: string;
+    variants: Variant[];
+}): Variant | undefined;
 /**
  * Set the local variant of the experiment.
  *
  * @export
- * @param {{ experimentName: string, variants: Variant[], seed?: string, callback?: (variant: Variant) => void }} { experimentName, variants, seed, callback }
+ * @param {{ experimentName: string, variants: Variant[], seed?: string, callback?: ExperimentOptions['onVariantPicked'] }} { experimentName, variants, seed, callback }
  */
-export declare function setLocalVariant({ experimentName, variants, seed, callback }: {
+export declare function setPickedVariant({ experimentName, variants, seed, callback }: {
     experimentName: string;
     variants: Variant[];
     seed?: string;
-    callback?: (variant: Variant) => void;
+    callback?: ExperimentOptions['onVariantPicked'];
 }): void;
 /**
  * Check if the local seed and the given seed are consistent.
