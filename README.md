@@ -25,6 +25,11 @@ be installed by running:
 npm install split-testing
 ```
 
+Or through a CDN for having a global variable `SplitTesting` containing all the methods :
+```html
+<script defer src="https://unpkg.com/split-testing@0.4.1/dist/bundle.js"></script>
+```
+
 ## Basic Usage
 
 This is how you would use SplitTesting.js in ES6 to create an experiment:
@@ -44,20 +49,22 @@ setExperiment({
   name: experimentName,
   variants,
   onVariantPicked: (pickedVariant) => {
-    // When the variant is first picked for the user (= first-load of the page)
-    console.log(`Variant picked, named "${pickedVariant.name}"`)
+    // Callback when this experiment had no variant saved in localStorage yet
+    // Example of action: sending an event to analytics with the variant picked
   }
 })
-```
 
-If no variant is detected in `localStorage`,  one will be randomly picked (same chance for all the variants), which will trigger the `onVariantPicked` method if provided.
-
-The code is synchrone, so after the execution of `setExperiment` you can directly access the persistant variant like so :
-```javascript
+// Getting the variant of the user
 const pickedVariant = getPickedVariant({ experimentName, variants })
+
+/* Execute your code here with the pickedVariant.data variable */
 ```
 
-The name of the experiment is used in the property name of the localStorage, that's why we need to pass it in the different methods for getting the saved variant.
+There is only two options mandatory for setting up the experiment : `name` and `variants`.
+
+During the set up method, if no variant is detected in localStorage, one will be randomly picked (same chance for all the variants if no weight provided), which will trigger the `onVariantPicked` method if present in the options.
+
+The code is fully [declarative](https://www.freecodecamp.org/news/imperative-vs-declarative-programming-difference/), so the library is using the name of the experiment for saving the variant (and the seed if provided) in localStorage, that's why we need to pass the `experimentName` or `variants` in the method `pickedVariant` for example.
 
 ## Advance Usage
 
@@ -102,6 +109,38 @@ SplitTesting.setExperiment({
 
 In those cases, a warning will be present in the console.
 
+## Error-free code
+
+If there is a problem with the seed of with the weights of the variants, SplitTesting.js will automatically resolve it and warn you about it in the console.
+
+However, errors can still happen if one of these conditions is met :
+- At least one of the mandatory options in `setExperiment` is not given
+- A variant saved in localStorage is no more present in the `variants` given
+
+**If your split test is at least tested once, and no change happen in the `variants` variable, then no error should ever occur**
+
+In case you really don't want any error for sure, the `setExperiment` method returns a boolean making an error-free code and fully secure experiment possible :
+```javascript
+// Setting up the experiment
+const isExpRunning = setExperiment({
+  /* ERROR: no 'name' given */
+  variants
+})
+
+// Secure the experiment
+if (isExpRunning) {
+
+  // Getting the variant of the user
+  const pickedVariant = getPickedVariant({ experimentName, variants })
+
+  /* Execute your code here with the pickedVariant.data variable */
+
+} else {
+  /* Execute your default code here */
+}
+```
+_(of course you can still use a try/catch instead)_
+
 ## Debug mode
 
 The debug mode will log various messages of information into the console, allowing you to better understand what the library is doing.
@@ -115,15 +154,7 @@ SplitTesting.setExperiment({
 })
 ```
 
-## CDN source
-
-If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
-```html
-<script defer src="https://unpkg.com/split-testing@0.4.0/dist/bundle.js"></script>
-<!-- Check and take the latest version -->
-```
-You will then have a global variable `SplitTesting` available, containing all the methods you need.
-
 ## Todo
 
+- Documenting the 
 - Adding a test library for validating the methods and the randomness
