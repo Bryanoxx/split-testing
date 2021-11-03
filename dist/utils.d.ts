@@ -20,14 +20,6 @@ export declare function log(...args: any[]): void;
  */
 export declare function warn(...args: any[]): void;
 /**
- * Deep clones an object
- *
- * @export
- * @param {*} obj
- * @return {*}  {*}
- */
-export declare function clone(obj: any): any;
-/**
  * Return a random item from an array (with weighted probability)
  * A seed is possible in the goal of always returning the same item
  *
@@ -38,3 +30,12 @@ export declare function clone(obj: any): any;
  * @return {*}  {T}
  */
 export declare function getWeightedRandomElement<T>(collection: any[], seed?: string): T;
+/**
+ * Deep clones all properties except Function and RegExp
+ * Extracted and edited from https://www.npmjs.com/package/just-clone
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+export declare function clone(obj: any): any;

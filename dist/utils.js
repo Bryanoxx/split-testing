@@ -3,9 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWeightedRandomElement = exports.clone = exports.warn = exports.log = exports.defineDebugMode = void 0;
+exports.clone = exports.getWeightedRandomElement = exports.warn = exports.log = exports.defineDebugMode = void 0;
 const seedrandom_1 = __importDefault(require("seedrandom"));
-const just_clone_1 = __importDefault(require("just-clone"));
 let debug = false;
 /**
  * Define the state of the debug mode
@@ -40,17 +39,6 @@ function warn(...args) {
 }
 exports.warn = warn;
 /**
- * Deep clones an object
- *
- * @export
- * @param {*} obj
- * @return {*}  {*}
- */
-function clone(obj) {
-    return (0, just_clone_1.default)(obj);
-}
-exports.clone = clone;
-/**
  * Return a random item from an array (with weighted probability)
  * A seed is possible in the goal of always returning the same item
  *
@@ -73,3 +61,32 @@ function getWeightedRandomElement(collection, seed) {
     return weightedRandomItem;
 }
 exports.getWeightedRandomElement = getWeightedRandomElement;
+/**
+ * Deep clones all properties except Function and RegExp
+ * Extracted and edited from https://www.npmjs.com/package/just-clone
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+function clone(obj) {
+    if (typeof obj === 'function') {
+        return obj;
+    }
+    const result = Array.isArray(obj) ? [] : {};
+    for (var key in obj) {
+        const value = obj[key];
+        const type = {}.toString.call(value).slice(8, -1);
+        if (type === 'Array' || type === 'Object') {
+            result[key] = clone(value);
+        }
+        else if (type === 'Date') {
+            result[key] = new Date(value.getTime());
+        }
+        else {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+exports.clone = clone;

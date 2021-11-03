@@ -117,5 +117,6 @@ You will then have a global variable `SplitTesting` available, containing all th
 ## Todo
 
 - Having 0 dependency
+- Checking the mandatory options in `setExperiment`
 - Option for allowing or not the _seed conflict check_
 - Adding a test library for validating the methods and the randomness

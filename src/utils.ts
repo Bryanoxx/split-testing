@@ -1,5 +1,4 @@
 import seedrandom from 'seedrandom'
-import justClone from 'just-clone'
 
 let debug = false
 
@@ -36,17 +35,6 @@ export function warn (...args: any[]): void {
 }
 
 /**
- * Deep clones an object
- *
- * @export
- * @param {*} obj
- * @return {*}  {*}
- */
-export function clone (obj: any): any {
-  return justClone(obj)
-}
-
-/**
  * Return a random item from an array (with weighted probability)
  * A seed is possible in the goal of always returning the same item
  *
@@ -66,4 +54,31 @@ export function getWeightedRandomElement<T> (collection: any[], seed?: string): 
     }
   })
   return weightedRandomItem
+}
+
+/**
+ * Deep clones all properties except Function and RegExp
+ * Extracted and edited from https://www.npmjs.com/package/just-clone
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+export function clone (obj: any): any {
+  if (typeof obj === 'function') {
+    return obj
+  }
+  const result: any = Array.isArray(obj) ? [] : {}
+  for (var key in obj) {
+    const value = obj[key]
+    const type = {}.toString.call(value).slice(8, -1)
+    if (type === 'Array' || type === 'Object') {
+      result[key] = clone(value)
+    } else if (type === 'Date') {
+      result[key] = new Date(value.getTime())
+    } else {
+      result[key] = value
+    }
+  }
+  return result
 }
