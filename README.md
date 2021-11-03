@@ -155,6 +155,5 @@ SplitTesting.setExperiment({
 ```
 
 ## Todo
-
-- Documenting the 
+ 
 - Adding a test library for validating the methods and the randomness
