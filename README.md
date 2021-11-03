@@ -126,5 +126,4 @@ You will then have a global variable `SplitTesting` available, containing all th
 
 ## Todo
 
-- Checking the mandatory options in `setExperiment`
 - Adding a test library for validating the methods and the randomness
