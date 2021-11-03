@@ -1,12 +1,12 @@
 # SplitTesting.js
 
-This library allows you to easily implement split testing to your website, in a multi-variant way (A/B, A/B/C, etc...).
-It's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
+This library allows you to easily implement split testing to your website, it's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
 
-Goals of this library :
-- Lightweight
-- Easy to use
-- Secure
+Features :
+- Variant saved in localStorage
+- Multiple variants (A/B, A/B/C, etc...)
+- Weighted variants for defining the chance of being picked
+- Seed option for cross-device consistency (ex: userID as a seed)
 
 
 ## Installation
@@ -18,7 +18,7 @@ be installed by running:
 npm install split-testing
 ```
 
-## Usage
+## Basic Usage
 
 This is how you would use SplitTesting.js in ES6 to create an experiment:
 
@@ -26,7 +26,7 @@ This is how you would use SplitTesting.js in ES6 to create an experiment:
 import { setExperiment, getPickedVariant } from 'split-testing';
 
 // Configuration of the experiment 
-const experimentName = 'test1'
+const experimentName = 'abtest-basic'
 const variants = [
   { name: 'control', data: {} },
   { name: 'test', data: {} }
@@ -54,11 +54,13 @@ The name of the experiment is used in the property name of the localStorage, tha
 
 ## Advance Usage
 
-For more persistance, you can add a `seed` during the experiment, it will have for effect to always return the same variant : 
+### 1) Seeded variant
+
+For more persistance, you can add a `seed` property, it will have for effect to always return the same variant.
 
 ```javascript
 SplitTesting.setExperiment({
-  name: 'test2',
+  name: 'abtest-seed',
   variants: [
     { name: 'control' },
     { name: 'test' } // ALWAYS PICKED
@@ -67,7 +69,28 @@ SplitTesting.setExperiment({
 })
 ```
 
-**You can for example put the ID of a user as a seed, thus : the variant will be persitent whatever the device used by the user.**
+**For example, by putting the userID as the seed: the variant will be persitent whatever the device used by the user.**
+
+### 2) Weighted variant
+
+By default all variants have the same probability of being picked at first load, but you can change that with the `weight` property :
+
+```javascript
+SplitTesting.setExperiment({
+  name: 'abtest-weighted',
+  variants: [
+    { name: 'control', weight: 0.50 }, // 50% chance
+    { name: 'test1', weight: 0.25 }, // 25% chance
+    { name: 'test2', weight: 0.25 } // 25% chance
+  ]
+})
+```
+
+**Warning** - The weight values will be reseted to the default ones if :
+- The total of all weight is not equal to 1
+- Some variants have a weight property and others no
+
+In those cases, a warning will be present in the console.
 
 ## Debug mode
 
@@ -86,15 +109,13 @@ SplitTesting.setExperiment({
 
 If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
 ```html
-<script defer src="https://unpkg.com/split-testing@0.2.0/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@0.3.0/dist/bundle.js"></script>
 <!-- Check and take the latest version -->
 ```
 You will then have a global variable `SplitTesting` available, containing all the methods you need.
 
 ## Todo
 
-- [ ] Option for allowing or not the _seed conflict check_
-- [ ] Documenting all the options of `setExperiment` in the README
-- [ ] Adding `weight` to variants for changing their probability to be picked
-- [ ] Adding a test library for validating the methods and the randomness
-- [ ] Extract `seedrandom(seed).quick()` from `seedrandom` for having 0 dependency
+- Having 0 dependency
+- Option for allowing or not the _seed conflict check_
+- Adding a test library for validating the methods and the randomness
