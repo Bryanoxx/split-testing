@@ -35,6 +35,16 @@ export function warn (...args: any[]): void {
 }
 
 /**
+ * Logs a warning message to the console
+ *
+ * @export
+ * @param {...string[]} args
+ */
+export function error (...args: any[]): void {
+  console.error('SplitTesting.js -', ...args)
+}
+
+/**
  * Return a random item from an array (with weighted probability)
  * A seed is possible in the goal of always returning the same item
  *

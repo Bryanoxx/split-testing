@@ -1,16 +1,30 @@
 import type { Variant, ExperimentOptions } from './types'
-import { defineDebugMode, log, warn, clone, getWeightedRandomElement } from './utils'
+import { defineDebugMode, log, warn, error, clone, getWeightedRandomElement } from './utils'
 
 /**
  * Configure a split testing experiment with the given options.
  *
  * @export
  * @param {ExperimentOptions} options
+ * @return {*}  {boolean}
  */
-export function setExperiment (options: ExperimentOptions): void {
-  // Extraction des options
+export function setExperiment (options: ExperimentOptions): boolean {
+  // Extraction and validation of the options
   const { name: experimentName, seed, debug, onVariantPicked, resolveSeedConflict } = options
   const variants = clone(options.variants)
+  if (typeof experimentName !== 'string' || experimentName.length === 0) {
+    error('Experiment name is required')
+    return false
+  }
+  if (!Array.isArray(variants) || variants.length === 0) {
+    error('Variants are required')
+    return false
+  }
+  const variantsHaveNames = variants.every(variant => variant.name !== undefined && variant.name.length > 0)
+  if (!variantsHaveNames) {
+    error('All variants must have a name')
+    return false
+  }
 
   // Configuration of the debug mode
   if (debug === true) {
@@ -19,10 +33,10 @@ export function setExperiment (options: ExperimentOptions): void {
     log({ experimentName, variants: options.variants, seed, debug })
   }
 
+  // Picking or verification of the variant
   const pickedVariantName = getPickedVariantName(experimentName)
   if (pickedVariantName === null) {
-    // First-time user: picking his variant
-    log('No variant picked in localStorage, picking it...')
+    log('No variant picked in localStorage, picking it now')
     pickVariant({
       experimentName,
       variants,
@@ -30,8 +44,13 @@ export function setExperiment (options: ExperimentOptions): void {
       callback: onVariantPicked
     })
   } else {
-    // The user already came: if provided, checking the seeds for having a consistent variant
-    log(`Variant detected in localStorage: ${pickedVariantName}`)
+    log(`Variant already picked, named ${pickedVariantName}`)
+    // Checking if the variant name is valid
+    if (getPickedVariant({ experimentName, variants }) === undefined) {
+      error('Variant name in localStorage don\'t exist in the variants given in options')
+      return false
+    }
+    // Checking the seed for having a consistent variant
     if (resolveSeedConflict !== false && seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
       warn('Conflict between the old seed and the current seed, updating the variant for the current seed')
       pickVariant({
@@ -42,6 +61,8 @@ export function setExperiment (options: ExperimentOptions): void {
       })
     }
   }
+
+  return true
 }
 
 /**

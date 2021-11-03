@@ -7,21 +7,35 @@ const utils_1 = require("./utils");
  *
  * @export
  * @param {ExperimentOptions} options
+ * @return {*}  {boolean}
  */
 function setExperiment(options) {
-    // Extraction des options
+    // Extraction and validation of the options
     const { name: experimentName, seed, debug, onVariantPicked, resolveSeedConflict } = options;
     const variants = (0, utils_1.clone)(options.variants);
+    if (typeof experimentName !== 'string' || experimentName.length === 0) {
+        (0, utils_1.error)('Experiment name is required');
+        return false;
+    }
+    if (!Array.isArray(variants) || variants.length === 0) {
+        (0, utils_1.error)('Variants are required');
+        return false;
+    }
+    const variantsHaveNames = variants.every(variant => variant.name !== undefined && variant.name.length > 0);
+    if (!variantsHaveNames) {
+        (0, utils_1.error)('All variants must have a name');
+        return false;
+    }
     // Configuration of the debug mode
     if (debug === true) {
         (0, utils_1.defineDebugMode)(true);
         (0, utils_1.log)('Running split testing with these options :');
         (0, utils_1.log)({ experimentName, variants: options.variants, seed, debug });
     }
+    // Picking or verification of the variant
     const pickedVariantName = getPickedVariantName(experimentName);
     if (pickedVariantName === null) {
-        // First-time user: picking his variant
-        (0, utils_1.log)('No variant picked in localStorage, picking it...');
+        (0, utils_1.log)('No variant picked in localStorage, picking it now');
         pickVariant({
             experimentName,
             variants,
@@ -30,8 +44,13 @@ function setExperiment(options) {
         });
     }
     else {
-        // The user already came: if provided, checking the seeds for having a consistent variant
-        (0, utils_1.log)(`Variant detected in localStorage: ${pickedVariantName}`);
+        (0, utils_1.log)(`Variant already picked, named ${pickedVariantName}`);
+        // Checking if the variant name is valid
+        if (getPickedVariant({ experimentName, variants }) === undefined) {
+            (0, utils_1.error)('Variant name in localStorage don\'t exist in the variants given in options');
+            return false;
+        }
+        // Checking the seed for having a consistent variant
         if (resolveSeedConflict !== false && seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
             (0, utils_1.warn)('Conflict between the old seed and the current seed, updating the variant for the current seed');
             pickVariant({
@@ -42,6 +61,7 @@ function setExperiment(options) {
             });
         }
     }
+    return true;
 }
 exports.setExperiment = setExperiment;
 /**

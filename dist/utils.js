@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clone = exports.getWeightedRandomElement = exports.warn = exports.log = exports.defineDebugMode = void 0;
+exports.clone = exports.getWeightedRandomElement = exports.error = exports.warn = exports.log = exports.defineDebugMode = void 0;
 const seedrandom_1 = __importDefault(require("seedrandom"));
 let debug = false;
 /**
@@ -38,6 +38,16 @@ function warn(...args) {
     console.warn('SplitTesting.js -', ...args);
 }
 exports.warn = warn;
+/**
+ * Logs a warning message to the console
+ *
+ * @export
+ * @param {...string[]} args
+ */
+function error(...args) {
+    console.error('SplitTesting.js -', ...args);
+}
+exports.error = error;
 /**
  * Return a random item from an array (with weighted probability)
  * A seed is possible in the goal of always returning the same item

@@ -3,6 +3,7 @@
 <p>
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/dm/split-testing" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/v/split-testing" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/types/split-testing" alt="Types"></a>
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/license/split-testing" alt="License"></a>
 </p>
 

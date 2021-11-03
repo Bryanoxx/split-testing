@@ -4,8 +4,9 @@ import type { Variant, ExperimentOptions } from './types';
  *
  * @export
  * @param {ExperimentOptions} options
+ * @return {*}  {boolean}
  */
-export declare function setExperiment(options: ExperimentOptions): void;
+export declare function setExperiment(options: ExperimentOptions): boolean;
 /**
  * Get the picked variant's name
  *

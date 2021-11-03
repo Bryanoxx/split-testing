@@ -8,7 +8,7 @@ const variants = [
 ]
 
 // Setting up the experiment
-setExperiment({
+const isTestWorking = setExperiment({
   name: experimentName,
   variants,
   onVariantPicked: (pickedVariant) => {
@@ -17,8 +17,13 @@ setExperiment({
   }
 })
 
-// Get the picked variant saved in localstorage
-const pickedVariant = getPickedVariant({ experimentName, variants })
+if (isTestWorking) {
+  // Get the picked variant saved in localstorage
+  const pickedVariant = getPickedVariant({ experimentName, variants })
 
-// Define the title of the page depending on the picked variant
-document.body.querySelector('[data-variant]').textContent = pickedVariant.data
+  // Define the title of the page depending on the picked variant
+  document.body.querySelector('[data-variant]').textContent = pickedVariant.data
+} else {
+  // If the experiment is not set up, we can't get the picked variant
+  document.body.querySelector('[data-variant]').textContent = variants[0].data + ' (error)'
+}
