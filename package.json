@@ -1,6 +1,6 @@
 {
   "name": "split-testing",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Lightweight split-testing library (A/B or multivariant)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
