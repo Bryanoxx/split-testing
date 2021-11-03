@@ -1,4 +1,5 @@
 import seedrandom from 'seedrandom'
+import justClone from 'just-clone'
 
 let debug = false
 
@@ -20,38 +21,49 @@ export function defineDebugMode (value: boolean): void {
  */
 export function log (...args: any[]): void {
   if (debug) {
-    console.log(...args)
+    console.log('SplitTesting.js -', ...args)
   }
 }
 
 /**
- * Return a random index from an array
- * A seed is possible in the goal of always returning the same index
+ * Logs a warning message to the console
  *
  * @export
- * @param {any[]} array
- * @param {string} [seed]
- * @return {*}  {number}
+ * @param {...string[]} args
  */
-export function getRandomIndex (array: any[], seed?: string): number {
-  const random: number = (seed !== undefined) ? seedrandom(seed).quick() : Math.random()
-  const randomIndex = Math.floor(random * array.length)
-  return randomIndex
+export function warn (...args: any[]): void {
+  console.warn('SplitTesting.js -', ...args)
 }
 
 /**
- * Returns an array of all the return values of the given function
+ * Deep clones an object
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+export function clone (obj: any): any {
+  return justClone(obj)
+}
+
+/**
+ * Return a random item from an array (with weighted probability)
+ * A seed is possible in the goal of always returning the same item
  *
  * @export
  * @template T
- * @param {number} iteration
- * @param {() => T} callback
- * @return {*}  {T[]}
+ * @param {any[]} collection
+ * @param {string} [seed]
+ * @return {*}  {T}
  */
-export function arrayFromCallbackResults<T> (iteration: number, callback: () => T): T[] {
-  const results: T[] = []
-  for (let i = 0; i < iteration; i++) {
-    results.push(callback())
-  }
-  return results
+export function getWeightedRandomElement<T> (collection: any[], seed?: string): T {
+  let random: number = (seed !== undefined) ? seedrandom(seed).quick() : Math.random()
+  const weightedRandomItem = collection.find(item => {
+    if (random < item.weight) {
+      return item
+    } else {
+      random -= item.weight
+    }
+  })
+  return weightedRandomItem
 }

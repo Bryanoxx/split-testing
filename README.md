@@ -86,12 +86,15 @@ SplitTesting.setExperiment({
 
 If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
 ```html
-<script defer src="https://unpkg.com/split-testing/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@0.2.0/dist/bundle.js"></script>
+<!-- Check and take the latest version -->
 ```
 You will then have a global variable `SplitTesting` available, containing all the methods you need.
 
 ## Todo
 
-- Option for allowing or not the _seed conflict check_
-- Adding `weight` to variants for changing their probability to be picked
-- Adding a test library for validating the methods and the randomness
+- [ ] Option for allowing or not the _seed conflict check_
+- [ ] Documenting all the options of `setExperiment` in the README
+- [ ] Adding `weight` to variants for changing their probability to be picked
+- [ ] Adding a test library for validating the methods and the randomness
+- [ ] Extract `seedrandom(seed).quick()` from `seedrandom` for having 0 dependency

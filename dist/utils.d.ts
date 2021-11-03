@@ -13,22 +13,28 @@ export declare function defineDebugMode(value: boolean): void;
  */
 export declare function log(...args: any[]): void;
 /**
- * Return a random index from an array
- * A seed is possible in the goal of always returning the same index
+ * Logs a warning message to the console
  *
  * @export
- * @param {any[]} array
- * @param {string} [seed]
- * @return {*}  {number}
+ * @param {...string[]} args
  */
-export declare function getRandomIndex(array: any[], seed?: string): number;
+export declare function warn(...args: any[]): void;
 /**
- * Returns an array of all the return values of the given function
+ * Deep clones an object
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+export declare function clone(obj: any): any;
+/**
+ * Return a random item from an array (with weighted probability)
+ * A seed is possible in the goal of always returning the same item
  *
  * @export
  * @template T
- * @param {number} iteration
- * @param {() => T} callback
- * @return {*}  {T[]}
+ * @param {any[]} collection
+ * @param {string} [seed]
+ * @return {*}  {T}
  */
-export declare function arrayFromCallbackResults<T>(iteration: number, callback: () => T): T[];
+export declare function getWeightedRandomElement<T>(collection: any[], seed?: string): T;

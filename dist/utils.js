@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.arrayFromCallbackResults = exports.getRandomIndex = exports.log = exports.defineDebugMode = void 0;
+exports.getWeightedRandomElement = exports.clone = exports.warn = exports.log = exports.defineDebugMode = void 0;
 const seedrandom_1 = __importDefault(require("seedrandom"));
+const just_clone_1 = __importDefault(require("just-clone"));
 let debug = false;
 /**
  * Define the state of the debug mode
@@ -24,39 +25,51 @@ exports.defineDebugMode = defineDebugMode;
  */
 function log(...args) {
     if (debug) {
-        console.log(...args);
+        console.log('SplitTesting.js -', ...args);
     }
 }
 exports.log = log;
 /**
- * Return a random index from an array
- * A seed is possible in the goal of always returning the same index
+ * Logs a warning message to the console
  *
  * @export
- * @param {any[]} array
- * @param {string} [seed]
- * @return {*}  {number}
+ * @param {...string[]} args
  */
-function getRandomIndex(array, seed) {
-    const random = (seed !== undefined) ? (0, seedrandom_1.default)(seed).quick() : Math.random();
-    const randomIndex = Math.floor(random * array.length);
-    return randomIndex;
+function warn(...args) {
+    console.warn('SplitTesting.js -', ...args);
 }
-exports.getRandomIndex = getRandomIndex;
+exports.warn = warn;
 /**
- * Returns an array of all the return values of the given function
+ * Deep clones an object
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+function clone(obj) {
+    return (0, just_clone_1.default)(obj);
+}
+exports.clone = clone;
+/**
+ * Return a random item from an array (with weighted probability)
+ * A seed is possible in the goal of always returning the same item
  *
  * @export
  * @template T
- * @param {number} iteration
- * @param {() => T} callback
- * @return {*}  {T[]}
+ * @param {any[]} collection
+ * @param {string} [seed]
+ * @return {*}  {T}
  */
-function arrayFromCallbackResults(iteration, callback) {
-    const results = [];
-    for (let i = 0; i < iteration; i++) {
-        results.push(callback());
-    }
-    return results;
+function getWeightedRandomElement(collection, seed) {
+    let random = (seed !== undefined) ? (0, seedrandom_1.default)(seed).quick() : Math.random();
+    const weightedRandomItem = collection.find(item => {
+        if (random < item.weight) {
+            return item;
+        }
+        else {
+            random -= item.weight;
+        }
+    });
+    return weightedRandomItem;
 }
-exports.arrayFromCallbackResults = arrayFromCallbackResults;
+exports.getWeightedRandomElement = getWeightedRandomElement;

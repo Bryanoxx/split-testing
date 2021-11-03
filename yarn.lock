@@ -1200,6 +1200,11 @@ json5@^1.0.1:
     array-includes "^3.1.3"
     object.assign "^4.1.2"
 
+just-clone@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/just-clone/-/just-clone-4.1.1.tgz#e9051994c6b2a00be4731fce2430772662a97c86"
+  integrity sha512-LYavd6qj7jNUWAGEC/Wdxr2Y533Fjx2+AAIjkxflT1QpQfPXFcMG1kZwfnxs+3iJinB8ByklW6kEegGJhcZmrA==
+
 levn@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.4.1.tgz#ae4562c007473b932a6200d403268dd2fffc6ade"

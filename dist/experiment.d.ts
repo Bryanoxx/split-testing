@@ -3,19 +3,19 @@ import type { Variant, ExperimentOptions } from './types';
  * Configure a split testing experiment with the given options.
  *
  * @export
- * @param {ExperimentOptions} { name, variants, seed, debug, onSetLocalVariant }
+ * @param {ExperimentOptions} options
  */
-export declare function setExperiment({ name, variants, seed, debug, onVariantPicked }: ExperimentOptions): void;
+export declare function setExperiment(options: ExperimentOptions): void;
 /**
- * Get the local variant of the experiment.
+ * Get the picked variant's name
  *
  * @export
  * @param {string} experimentName
- * @return {*}  {(Variant | null)}
+ * @return {*}  {(string | null)}
  */
 export declare function getPickedVariantName(experimentName: string): string | null;
 /**
- * Get all the details of a variant with its name
+ * Get all the details of the picked variant
  *
  * @export
  * @param {{ variantName: string, variants: Variant[]}} { variantName, variants }
@@ -26,12 +26,12 @@ export declare function getPickedVariant({ experimentName, variants }: {
     variants: Variant[];
 }): Variant | undefined;
 /**
- * Set the local variant of the experiment.
+ * Pick and save the variant of the experiment in localStorage
  *
  * @export
  * @param {{ experimentName: string, variants: Variant[], seed?: string, callback?: ExperimentOptions['onVariantPicked'] }} { experimentName, variants, seed, callback }
  */
-export declare function setPickedVariant({ experimentName, variants, seed, callback }: {
+export declare function pickVariant({ experimentName, variants, seed, callback }: {
     experimentName: string;
     variants: Variant[];
     seed?: string;
@@ -48,3 +48,11 @@ export declare function sameLocalAndGivenSeed({ experimentName, seed }: {
     experimentName: string;
     seed: string | undefined;
 }): boolean;
+/**
+ * Reset the weight property of each variant for equal probability of being picked
+ *
+ * @export
+ * @param {Variant[]} variants
+ * @return {*}  {Variant[]}
+ */
+export declare function makeVariantsWithEqualWeights(variants: Variant[]): Variant[];

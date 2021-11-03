@@ -3,8 +3,8 @@ import { setExperiment, getPickedVariant } from '../src/index.ts'
 // Configuration of the experiment
 const experimentName = 'test1'
 const variants = [
-  { name: 'control', data: 'Super title (control)' },
-  { name: 'test', data: 'Great title (test)' }
+  { name: 'control', weight: 0.75, data: 'Super title (control)' },
+  { name: 'test', weight: 0.25, data: 'Great title (test)' }
 ]
 
 // Setting up the experiment
