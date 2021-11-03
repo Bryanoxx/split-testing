@@ -1,5 +1,11 @@
 # SplitTesting.js
 
+<p>
+  <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/dm/split-testing" alt="Downloads"></a>
+  <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/v/split-testing" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/license/split-testing" alt="License"></a>
+</p>
+
 This library allows you to easily implement split testing to your website, it's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
 
 Features :
@@ -69,7 +75,10 @@ SplitTesting.setExperiment({
 })
 ```
 
-**For example, by putting the userID as the seed: the variant will be persitent whatever the device used by the user.**
+For example, by putting the userID as the seed: **the variant will be consistent whatever the device used by the user.**
+
+**To know**: If a variant is already set (seeded or not) and a different seed from the variant's one is detected, then the variant will change for respecting the new seed.
+You can disallow this behavior by putting `resolveSeedConflict: false` in the options of `setExperiment` (not recommended). 
 
 ### 2) Weighted variant
 
@@ -79,14 +88,14 @@ By default all variants have the same probability of being picked at first load,
 SplitTesting.setExperiment({
   name: 'abtest-weighted',
   variants: [
-    { name: 'control', weight: 0.50 }, // 50% chance
-    { name: 'test1', weight: 0.25 }, // 25% chance
-    { name: 'test2', weight: 0.25 } // 25% chance
+    { name: 'control', weight: 0.50 }, // 50% chance of being picked
+    { name: 'test1', weight: 0.25 }, // 25% chance of being picked
+    { name: 'test2', weight: 0.25 } // 25% chance of being picked
   ]
 })
 ```
 
-**Warning** - The weight values will be reseted to the default ones if :
+**To know** - The weight values will be reseted to the default ones if :
 - The total of all weight is not equal to 1
 - Some variants have a weight property and others no
 
@@ -109,14 +118,12 @@ SplitTesting.setExperiment({
 
 If you don't use NodeJS at all, you can add SplitTesting.js to your website using this line in your HTML :
 ```html
-<script defer src="https://unpkg.com/split-testing@0.3.0/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@0.4.0/dist/bundle.js"></script>
 <!-- Check and take the latest version -->
 ```
 You will then have a global variable `SplitTesting` available, containing all the methods you need.
 
 ## Todo
 
-- Having 0 dependency
 - Checking the mandatory options in `setExperiment`
-- Option for allowing or not the _seed conflict check_
 - Adding a test library for validating the methods and the randomness

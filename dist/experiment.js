@@ -10,7 +10,7 @@ const utils_1 = require("./utils");
  */
 function setExperiment(options) {
     // Extraction des options
-    const { name: experimentName, seed, debug, onVariantPicked } = options;
+    const { name: experimentName, seed, debug, onVariantPicked, resolveSeedConflict } = options;
     const variants = (0, utils_1.clone)(options.variants);
     // Configuration of the debug mode
     if (debug === true) {
@@ -32,8 +32,8 @@ function setExperiment(options) {
     else {
         // The user already came: if provided, checking the seeds for having a consistent variant
         (0, utils_1.log)(`Variant detected in localStorage: ${pickedVariantName}`);
-        if (seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
-            (0, utils_1.log)('Conflict between the old seed and the current seed, updating the variant for the current seed');
+        if (resolveSeedConflict !== false && seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
+            (0, utils_1.warn)('Conflict between the old seed and the current seed, updating the variant for the current seed');
             pickVariant({
                 experimentName,
                 variants,

@@ -9,7 +9,7 @@ import { defineDebugMode, log, warn, clone, getWeightedRandomElement } from './u
  */
 export function setExperiment (options: ExperimentOptions): void {
   // Extraction des options
-  const { name: experimentName, seed, debug, onVariantPicked } = options
+  const { name: experimentName, seed, debug, onVariantPicked, resolveSeedConflict } = options
   const variants = clone(options.variants)
 
   // Configuration of the debug mode
@@ -32,8 +32,8 @@ export function setExperiment (options: ExperimentOptions): void {
   } else {
     // The user already came: if provided, checking the seeds for having a consistent variant
     log(`Variant detected in localStorage: ${pickedVariantName}`)
-    if (seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
-      log('Conflict between the old seed and the current seed, updating the variant for the current seed')
+    if (resolveSeedConflict !== false && seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
+      warn('Conflict between the old seed and the current seed, updating the variant for the current seed')
       pickVariant({
         experimentName,
         variants,

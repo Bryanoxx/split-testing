@@ -8,5 +8,6 @@ export interface ExperimentOptions {
   variants: Variant[]
   seed?: string
   debug?: boolean
+  resolveSeedConflict?: boolean
   onVariantPicked?: (variant: Variant) => void
 }
