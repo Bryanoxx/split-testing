@@ -38,6 +38,15 @@ export declare function error(...args: any[]): void;
  */
 export declare function getWeightedRandomElement<T>(collection: any[], seed?: string): T;
 /**
+ * Return always the same number between 0 and 1 from the same string
+ * Here's how : http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+ *
+ * @export
+ * @param {string} seed
+ * @return {*}  {number}
+ */
+export declare function getSeededRandom(seed: string): number;
+/**
  * Deep clones all properties except Function and RegExp
  * Extracted and edited from https://www.npmjs.com/package/just-clone
  *

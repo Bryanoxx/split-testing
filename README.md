@@ -7,7 +7,9 @@
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/license/split-testing" alt="License"></a>
 </p>
 
-This library allows you to easily implement split testing to your website, it's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
+This library allows you to easily implement split testing to your website in only 3.0kb (size of the bundle.js file).
+
+It's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
 
 Features :
 - Variant saved in localStorage
@@ -27,7 +29,7 @@ npm install split-testing
 
 Or through a CDN for having a global variable `SplitTesting` containing all the methods :
 ```html
-<script defer src="https://unpkg.com/split-testing@0.4.1/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@0.4.2/dist/bundle.js"></script>
 ```
 
 ## Basic Usage
@@ -117,29 +119,11 @@ However, errors can still happen if one of these conditions is met :
 - At least one of the mandatory options in `setExperiment` is not given
 - A variant saved in localStorage is no more present in the `variants` given
 
-**If your split test is at least tested once, and no change happen in the `variants` variable, then no error should ever occur**
+**If your split test is at least tested once without errors, and no change happen in the `variants` variable, then no error should ever occur**
 
-In case you really don't want any error for sure, the `setExperiment` method returns a boolean making an error-free code and fully secure experiment possible :
-```javascript
-// Setting up the experiment
-const isExpRunning = setExperiment({
-  /* ERROR: no 'name' given */
-  variants
-})
+In case you really don't want any error for sure, the `setExperiment` method returns a boolean making an error-free code and fully secure experiment possible.
 
-// Secure the experiment
-if (isExpRunning) {
-
-  // Getting the variant of the user
-  const pickedVariant = getPickedVariant({ experimentName, variants })
-
-  /* Execute your code here with the pickedVariant.data variable */
-
-} else {
-  /* Execute your default code here */
-}
-```
-_(of course you can still use a try/catch instead)_
+Of course, you can still use a try/catch instead and put your default code in the catch part.
 
 ## Debug mode
 
@@ -156,4 +140,4 @@ SplitTesting.setExperiment({
 
 ## Todo
  
-- Adding a test library for validating the methods and the randomness
+- Adding a test library for having a more secure library

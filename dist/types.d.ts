@@ -1,6 +1,7 @@
 export interface Variant {
     name: string;
     weight?: number;
+    data?: any;
 }
 export interface ExperimentOptions {
     name: string;

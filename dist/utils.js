@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clone = exports.getWeightedRandomElement = exports.error = exports.warn = exports.log = exports.defineDebugMode = void 0;
-const seedrandom_1 = __importDefault(require("seedrandom"));
+exports.clone = exports.getSeededRandom = exports.getWeightedRandomElement = exports.error = exports.warn = exports.log = exports.defineDebugMode = void 0;
 let debug = false;
 /**
  * Define the state of the debug mode
@@ -59,7 +55,7 @@ exports.error = error;
  * @return {*}  {T}
  */
 function getWeightedRandomElement(collection, seed) {
-    let random = (seed !== undefined) ? (0, seedrandom_1.default)(seed).quick() : Math.random();
+    let random = (seed !== undefined) ? getSeededRandom(seed) : Math.random();
     const weightedRandomItem = collection.find(item => {
         if (random < item.weight) {
             return item;
@@ -71,6 +67,21 @@ function getWeightedRandomElement(collection, seed) {
     return weightedRandomItem;
 }
 exports.getWeightedRandomElement = getWeightedRandomElement;
+/**
+ * Return always the same number between 0 and 1 from the same string
+ * Here's how : http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+ *
+ * @export
+ * @param {string} seed
+ * @return {*}  {number}
+ */
+function getSeededRandom(seed) {
+    const seedInNumber = seed.split('').map(char => char.charCodeAt(0)).reduce((acc, char) => acc + char, 0);
+    const calcSeed = (seedInNumber * 9301 + 49297) % 233280;
+    const random = calcSeed / 233280;
+    return random;
+}
+exports.getSeededRandom = getSeededRandom;
 /**
  * Deep clones all properties except Function and RegExp
  * Extracted and edited from https://www.npmjs.com/package/just-clone

@@ -29,13 +29,10 @@
     "url": "https://github.com/Bryanoxx/split-testing.git"
   },
   "devDependencies": {
-    "@fal-works/esbuild-plugin-global-externals": "^2.1.2",
     "@types/seedrandom": "^3.0.1",
     "esbuild": "^0.13.9",
     "ts-standard": "^10.0.0",
     "typescript": "^4.4.4"
   },
-  "dependencies": {
-    "seedrandom": "^3.0.5"
-  }
+  "dependencies": {}
 }

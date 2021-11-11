@@ -1,5 +1,3 @@
-import seedrandom from 'seedrandom'
-
 let debug = false
 
 /**
@@ -55,7 +53,7 @@ export function error (...args: any[]): void {
  * @return {*}  {T}
  */
 export function getWeightedRandomElement<T> (collection: any[], seed?: string): T {
-  let random: number = (seed !== undefined) ? seedrandom(seed).quick() : Math.random()
+  let random: number = (seed !== undefined) ? getSeededRandom(seed) : Math.random()
   const weightedRandomItem = collection.find(item => {
     if (random < item.weight) {
       return item
@@ -64,6 +62,21 @@ export function getWeightedRandomElement<T> (collection: any[], seed?: string): 
     }
   })
   return weightedRandomItem
+}
+
+/**
+ * Return always the same number between 0 and 1 from the same string
+ * Here's how : http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+ *
+ * @export
+ * @param {string} seed
+ * @return {*}  {number}
+ */
+export function getSeededRandom (seed: string): number {
+  const seedInNumber = seed.split('').map(char => char.charCodeAt(0)).reduce((acc: number, char: number) => acc + char, 0)
+  const calcSeed = (seedInNumber * 9301 + 49297) % 233280
+  const random = calcSeed / 233280
+  return random
 }
 
 /**
