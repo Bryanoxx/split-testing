@@ -29,7 +29,7 @@ npm install split-testing
 
 Or through a CDN for having a global variable `SplitTesting` containing all the methods :
 ```html
-<script defer src="https://unpkg.com/split-testing@0.4.2/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@0.5.0/dist/bundle.js"></script>
 ```
 
 ## Basic Usage
