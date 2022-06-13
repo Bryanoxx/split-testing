@@ -29,7 +29,7 @@ npm install split-testing
 
 Or through a CDN for having a global variable `SplitTesting` containing all the methods :
 ```html
-<script defer src="https://unpkg.com/split-testing@0.5.0/dist/bundle.js"></script>
+<script defer src="https://unpkg.com/split-testing@<VERSION>/dist/bundle.js"></script>
 ```
 
 ## Basic Usage
@@ -76,10 +76,10 @@ For more persistance, you can add a `seed` property, it will have for effect to 
 
 ```javascript
 SplitTesting.setExperiment({
-  name: 'abtest-seed',
+  name: 'abtest-seed', // Constant seed
   variants: [
     { name: 'control' },
-    { name: 'test' } // ALWAYS PICKED
+    { name: 'test' } // Always picked
   ],
   seed: 'a constant string'
 })
@@ -138,6 +138,8 @@ SplitTesting.setExperiment({
 })
 ```
 
-## Todo
- 
-- Adding a test library for having a more secure library
+## Todo before v1
+
+- **Replacing `localStorage` by `cookies`** for having a SSR-friendly library
+- **Saving the whole variant data** and not just the name in storage
+- **Adding tests** for securing to the library
