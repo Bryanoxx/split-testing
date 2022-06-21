@@ -1,5 +1,6 @@
-import type { Variant, ExperimentOptions } from './types'
-import { defineDebugMode, log, warn, error, clone, getWeightedRandomElement } from './utils'
+import type { Variant, ExperimentOptions, WeightedVariant } from './types'
+import { validateWeightProperties, makeWeightPropertiesEqual, getWeightedRandomElement } from './utils/weight'
+import { makeLogger, warningLogger, createError } from './utils/utils'
 
 /**
  * Configure a split testing experiment with the given options.
@@ -8,160 +9,136 @@ import { defineDebugMode, log, warn, error, clone, getWeightedRandomElement } fr
  * @param {ExperimentOptions} options
  * @return {*}  {boolean}
  */
-export function setExperiment (options: ExperimentOptions): boolean {
-  // Extraction and validation of the options
-  const { name: experimentName, seed, debug, onVariantPicked, resolveSeedConflict } = options
-  const variants = clone(options.variants)
-  if (typeof experimentName !== 'string' || experimentName.length === 0) {
-    error('Experiment name is required')
-    return false
+export function setExperiment (options: ExperimentOptions): Variant {
+  // Extraction of the options
+  const experiment: ExperimentOptions = { ...options }
+  experiment.variants = structuredClone(options.variants)
+  experiment.isDebugMode = options.isDebugMode ?? false
+  experiment.isResolvingSeedConflictAllowed = options.isResolvingSeedConflictAllowed ?? false
+  if (window?.localStorage !== undefined) {
+    experiment.storage = experiment.storage ?? window.localStorage
   }
-  if (!Array.isArray(variants) || variants.length === 0) {
-    error('Variants are required')
-    return false
+
+  // Validation of the options
+  if (typeof experiment.name !== 'string' || experiment.name.length === 0) {
+    throw createError('The experiment name must be a non-empty string')
   }
-  const variantsHaveNames = variants.every(variant => variant.name !== undefined && variant.name.length > 0)
+  if (!Array.isArray(experiment.variants) || experiment.variants.length === 0) {
+    throw createError('The variants must be an array of at least one element')
+  }
+  const variantsHaveNames = experiment.variants.every(variant => variant.name !== undefined && variant.name.length > 0)
   if (!variantsHaveNames) {
-    error('All variants must have a name')
-    return false
+    throw createError('The variants must have a name')
   }
 
-  // Configuration of the debug mode
-  if (debug === true) {
-    defineDebugMode(true)
-    log('Running split testing with these options :')
-    log({ experimentName, variants: options.variants, seed, debug })
-  }
+  // Configuration of the logget depending on the debug mode
+  const logger = makeLogger(experiment.isDebugMode)
+  logger('Running split testing with these options :')
+  logger(experiment)
 
-  // Picking or verification of the variant
-  const pickedVariantName = getPickedVariantName(experimentName)
-  if (pickedVariantName === null) {
-    log('No variant picked in localStorage, picking it now')
-    pickVariant({
-      experimentName,
-      variants,
-      seed,
-      callback: onVariantPicked
-    })
+  // Picking the variant or verifying it if it exists
+  const pickedVariant = getPickedVariant(experiment)
+  if (pickedVariant === null) {
+    // Picking the variant for the first time
+    logger('No variant picked in storage, picking it now')
+    const newlyPickedVariant = pickAndSetVariant(experiment, logger)
+    if (experiment.onFirstPicking !== undefined) {
+      experiment.onFirstPicking(newlyPickedVariant)
+    }
+
+    return newlyPickedVariant
   } else {
-    log(`Variant already picked, named ${pickedVariantName}`)
+    // Verifying the variant coherencde if it already exists
+    logger(`Variant already picked, named ${pickedVariant.name}`)
+
     // Checking if the variant name is valid
-    if (getPickedVariant({ experimentName, variants }) === undefined) {
-      error('Variant name in localStorage don\'t exist in the variants given in options')
-      return false
+    if (getPickedVariant(experiment) === undefined) {
+      throw createError(`The variant named ${pickedVariant.name} is not valid (not found in the variants)`)
     }
+
     // Checking the seed for having a consistent variant
-    if (resolveSeedConflict !== false && seed !== undefined && !sameLocalAndGivenSeed({ experimentName, seed })) {
-      warn('Conflict between the old seed and the current seed, updating the variant for the current seed')
-      pickVariant({
-        experimentName,
-        variants,
-        seed,
-        callback: onVariantPicked
-      })
+    if (experiment.isResolvingSeedConflictAllowed && experiment.seed !== undefined && !sameLocalAndGivenSeed(experiment)) {
+      warningLogger('Conflict between the old seed and the current seed, updating the variant for the current seed')
+      const newlyPickedVariant = pickAndSetVariant(experiment, logger)
+      return newlyPickedVariant
     }
+
+    return pickedVariant
   }
-
-  return true
 }
 
 /**
- * Get the picked variant's name
+ * Get all the details of the picked variant from storage
  *
- * @export
- * @param {string} experimentName
- * @return {*}  {(string | null)}
- */
-export function getPickedVariantName (experimentName: string): string | null {
-  const pickedVariantName = localStorage.getItem(`${experimentName}-variant-name`)
-  return pickedVariantName
-}
-
-/**
- * Get all the details of the picked variant
- *
- * @export
- * @param {{ variantName: string, variants: Variant[]}} { variantName, variants }
+ * @param {ExperimentOptions} experiment
  * @return {*}  {(Variant | undefined)}
  */
-export function getPickedVariant ({ experimentName, variants }: { experimentName: string, variants: Variant[]}): Variant | undefined {
+function getPickedVariant (experiment: ExperimentOptions): Variant | null {
   // Name of the picked variant
-  const pickedVariantName = getPickedVariantName(experimentName)
+  const pickedVariantName = experiment.storage.getItem(`ST-${experiment.name}-variant-name`)
   if (pickedVariantName === null) {
-    return undefined
+    return null
   }
+
   // Finding details of the picked variant
-  const pickedVariant = variants.find(variant => variant.name === pickedVariantName)
-  return pickedVariant
+  const pickedVariant = experiment.variants.find(variant => variant.name === pickedVariantName)
+  return pickedVariant ?? null
 }
 
 /**
- * Pick and save the variant of the experiment in localStorage
+ * Set the name and seed of the picked variant in storage
  *
- * @export
- * @param {{ experimentName: string, variants: Variant[], seed?: string, callback?: ExperimentOptions['onVariantPicked'] }} { experimentName, variants, seed, callback }
+ * @param {ExperimentOptions} { name: experimentName, storage, seed }
+ * @param {Variant} pickedVariant
+ * @param {ReturnType<typeof makeLogger>} log
  */
-export function pickVariant ({ experimentName, variants, seed, callback }: { experimentName: string, variants: Variant[], seed?: string, callback?: ExperimentOptions['onVariantPicked'] }): void {
-  // Extracting weight-related variables
-  const hasWeight = variants.some(variant => variant.weight !== undefined)
-  const everyHasWeight = variants.every(variant => variant.weight !== undefined)
-  const totalWeight = variants.reduce((acc, variant) => acc + (variant.weight ?? 0), 0)
-
-  // Validating the weigh of the variants
-  if (hasWeight && !everyHasWeight) {
-    warn('SplitTesting.js: Some variants have a weight but not all of them, reset of all weight')
-    variants = makeVariantsWithEqualWeights(variants)
-  } else if (everyHasWeight && totalWeight !== 1) {
-    warn('SplitTesting.js: The total of all weight is not equal to 1, reset of all weight')
-    variants = makeVariantsWithEqualWeights(variants)
-  } else if (!hasWeight) {
-    // All the variant don't have a weight property
-    variants = makeVariantsWithEqualWeights(variants)
-  }
-
-  // Random picking of the variant (or constant if seed provided) and saving it in localStorage
-  const pickedVariant = getWeightedRandomElement<Variant>(variants, seed)
-  localStorage.setItem(`${experimentName}-variant-name`, pickedVariant.name)
+function setPickedVariant ({ name: experimentName, storage, seed }: ExperimentOptions, pickedVariant: Variant, log: ReturnType<typeof makeLogger>): void {
+  storage.setItem(`ST-${experimentName}-variant-name`, pickedVariant.name)
   log(`New picked variant: ${pickedVariant.name} ${seed !== undefined ? '(with seed)' : ''}`)
 
   // Saving the seed if provided, for further verifications next time the user come
   if (seed !== undefined) {
-    localStorage.setItem(`${experimentName}-seed`, seed)
+    storage.setItem(`ST-${experimentName}-seed`, seed)
   } else {
-    localStorage.removeItem(`${experimentName}-seed`)
+    storage.removeItem(`ST-${experimentName}-seed`)
+  }
+}
+
+/**
+ * Pick and save the variant of the experiment in storage
+ *
+ * @param {ExperimentOptions} { name: experimentName, variants, storage, seed, onFirstPicking }
+ * @param {ReturnType<typeof makeLogger>} log
+ */
+function pickAndSetVariant (
+  experiment: ExperimentOptions,
+  log: ReturnType<typeof makeLogger>
+): Variant {
+  // Extracting some properties
+  const variants = experiment.variants
+  const seed = experiment.seed
+
+  // Validating the weight of the variants
+  const areVariantsWellWeighted = validateWeightProperties(variants)
+  const weightedVariants: WeightedVariant[] = areVariantsWellWeighted ? (variants as WeightedVariant[]) : makeWeightPropertiesEqual(variants)
+  if (!areVariantsWellWeighted) {
+    log('Making all weight equal so the variants have the same probability of being picked')
   }
 
-  // Executing the callback if provided
-  if (callback !== undefined) {
-    callback(pickedVariant)
-  }
+  // Random picking of the variant (or constant if seed provided) and saving it in storage
+  const pickedVariant = getWeightedRandomElement(weightedVariants, seed)
+  setPickedVariant(experiment, pickedVariant, log)
+
+  return pickedVariant
 }
 
 /**
  * Check if the local seed and the given seed are consistent.
  *
- * @export
- * @param {({ experimentName: string, seed: string | undefined })} { experimentName, seed }
+ * @param {ExperimentOptions} { name: experimentName, seed, storage }
  * @return {*}  {boolean}
  */
-export function sameLocalAndGivenSeed ({ experimentName, seed }: { experimentName: string, seed: string | undefined }): boolean {
-  const localSeed = localStorage.getItem(`${experimentName}-seed`)
+function sameLocalAndGivenSeed ({ name: experimentName, seed, storage }: ExperimentOptions): boolean {
+  const localSeed = storage.getItem(`ST-${experimentName}-seed`)
   return localSeed === seed
-}
-
-/**
- * Reset the weight property of each variant for equal probability of being picked
- *
- * @export
- * @param {Variant[]} variants
- * @return {*}  {Variant[]}
- */
-export function makeVariantsWithEqualWeights (variants: Variant[]): Variant[] {
-  log('Making all weight equal so the variants have the same probability of being picked')
-  const weightValue = 1 / variants.length
-  const newVariants = variants.map(variant => {
-    variant.weight = weightValue
-    return variant
-  })
-  return newVariants
 }
