@@ -13,13 +13,14 @@ const utils_1 = require("./utils/utils");
 function setExperiment(options) {
     var _a, _b, _c;
     // Extraction of the options
-    const experiment = Object.assign({}, options);
-    experiment.variants = (0, utils_1.deepClone)(options.variants);
-    experiment.isDebugMode = (_a = options.isDebugMode) !== null && _a !== void 0 ? _a : false;
-    experiment.isResolvingSeedConflictAllowed = (_b = options.isResolvingSeedConflictAllowed) !== null && _b !== void 0 ? _b : false;
-    if ((window === null || window === void 0 ? void 0 : window.localStorage) !== undefined) {
-        experiment.storage = (_c = experiment.storage) !== null && _c !== void 0 ? _c : window.localStorage;
-    }
+    const experiment = {
+        name: options.name,
+        variants: (0, utils_1.deepClone)(options.variants),
+        seed: options.seed,
+        isDebugMode: (_a = options.isDebugMode) !== null && _a !== void 0 ? _a : false,
+        isResolvingSeedConflictAllowed: (_b = options.isResolvingSeedConflictAllowed) !== null && _b !== void 0 ? _b : true,
+        storage: (_c = options.storage) !== null && _c !== void 0 ? _c : window === null || window === void 0 ? void 0 : window.localStorage
+    };
     // Validation of the options
     if (typeof experiment.name !== 'string' || experiment.name.length === 0) {
         throw (0, utils_1.createError)('The experiment name must be a non-empty string');
@@ -30,6 +31,9 @@ function setExperiment(options) {
     const variantsHaveNames = experiment.variants.every(variant => variant.name !== undefined && variant.name.length > 0);
     if (!variantsHaveNames) {
         throw (0, utils_1.createError)('The variants must have a name');
+    }
+    if ((window === null || window === void 0 ? void 0 : window.localStorage) == null && options.storage == null) {
+        throw (0, utils_1.createError)('No storage available, please define a custom storage property');
     }
     // Configuration of the logget depending on the debug mode
     const logger = (0, utils_1.makeLogger)(experiment.isDebugMode);
@@ -66,7 +70,7 @@ exports.setExperiment = setExperiment;
 /**
  * Get all the details of the picked variant from storage
  *
- * @param {ExperimentOptions} experiment
+ * @param {SafeExperimentOptions} experiment
  * @return {*}  {(Variant | undefined)}
  */
 function getPickedVariant(experiment) {
@@ -82,7 +86,7 @@ function getPickedVariant(experiment) {
 /**
  * Set the name and seed of the picked variant in storage
  *
- * @param {ExperimentOptions} { name: experimentName, storage, seed }
+ * @param {SafeExperimentOptions} { name: experimentName, storage, seed }
  * @param {Variant} pickedVariant
  * @param {ReturnType<typeof makeLogger>} log
  */
@@ -100,7 +104,7 @@ function setPickedVariant({ name: experimentName, storage, seed }, pickedVariant
 /**
  * Pick and save the variant of the experiment in storage
  *
- * @param {ExperimentOptions} { name: experimentName, variants, storage, seed, onFirstPicking }
+ * @param {SafeExperimentOptions} { name: experimentName, variants, storage, seed, onFirstPicking }
  * @param {ReturnType<typeof makeLogger>} log
  */
 function pickAndSetVariant(experiment, log) {
@@ -121,7 +125,7 @@ function pickAndSetVariant(experiment, log) {
 /**
  * Check if the local seed and the given seed are consistent.
  *
- * @param {ExperimentOptions} { name: experimentName, seed, storage }
+ * @param {SafeExperimentOptions} { name: experimentName, seed, storage }
  * @return {*}  {boolean}
  */
 function sameLocalAndGivenSeed({ name: experimentName, seed, storage }) {
