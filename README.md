@@ -143,9 +143,9 @@ setExperiment({
 
 ### Analytics
 
-If you want to send to your analytics provider the variant that has been picked, and that only one time (not the other times when the variant is simply retrieved from storage), you can use the `onFirstPicking`.
+If you want to send to your analytics provider the variant that has been picked, and that only one time (not the other times when the variant is simply retrieved from storage), you can use the `onFirstPicking` method.
 
-Here is an example by sending the result of the experiment in Plausible Analytics :
+Here is an example by sending the result of the experiment into Plausible Analytics :
 
 ```javascript
 setExperiment({
