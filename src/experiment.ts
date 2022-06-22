@@ -1,6 +1,6 @@
 import type { Variant, ExperimentOptions, WeightedVariant } from './types'
 import { validateWeightProperties, makeWeightPropertiesEqual, getWeightedRandomElement } from './utils/weight'
-import { makeLogger, warningLogger, createError } from './utils/utils'
+import { makeLogger, warningLogger, createError, deepClone } from './utils/utils'
 
 /**
  * Configure a split testing experiment with the given options.
@@ -12,7 +12,7 @@ import { makeLogger, warningLogger, createError } from './utils/utils'
 export function setExperiment (options: ExperimentOptions): Variant {
   // Extraction of the options
   const experiment: ExperimentOptions = { ...options }
-  experiment.variants = structuredClone(options.variants)
+  experiment.variants = deepClone(options.variants)
   experiment.isDebugMode = options.isDebugMode ?? false
   experiment.isResolvingSeedConflictAllowed = options.isResolvingSeedConflictAllowed ?? false
   if (window?.localStorage !== undefined) {

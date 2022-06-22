@@ -1,2 +1,2 @@
 export * from './experiment';
-export type { Variant } from './types';
+export type { Variant, ExperimentOptions, Storage } from './types';

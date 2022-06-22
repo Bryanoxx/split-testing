@@ -44,3 +44,30 @@ export function warningLogger (data: any): void {
 export function createError (message: string): Error {
   return new Error(`SplitTesting.js - ${message}`)
 }
+
+/**
+ * Deep clones all properties except Function and RegExp
+ * Extracted and edited from https://www.npmjs.com/package/just-clone
+ *
+ * @export
+ * @param {*} obj
+ * @return {*}  {*}
+ */
+export function deepClone (obj: any): any {
+  if (typeof obj === 'function') {
+    return obj
+  }
+  const result: any = Array.isArray(obj) ? [] : {}
+  for (var key in obj) {
+    const value = obj[key]
+    const type = {}.toString.call(value).slice(8, -1)
+    if (type === 'Array' || type === 'Object') {
+      result[key] = deepClone(value)
+    } else if (type === 'Date') {
+      result[key] = new Date(value.getTime())
+    } else {
+      result[key] = value
+    }
+  }
+  return result
+}
