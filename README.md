@@ -7,13 +7,11 @@
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/license/split-testing" alt="License"></a>
 </p>
 
-This library allows you to easily implement split testing to your website in only 3.0kb (size of the bundle.js file).
+This library allows you to easily implement split testing to your website in only 3.3kb (size of the bundle.js file).
 
-It's fully written in TypeScript with a functional programming and declarative  paradigm in mind.
-
-Features :
-- Variant saved in localStorage
-- Multiple variants (A/B, A/B/C, etc...)
+It's fully written in TypeScript and here are the features you benefit :
+- Custom storage of the variant (SSR-friendly)
+- Multiple variants possible (A/B, A/B/C, etc...)
 - Weighted variants for defining the chance of being picked
 - Seed option for cross-device consistency (ex: userID as a seed)
 
@@ -37,65 +35,78 @@ Or through a CDN for having a global variable `SplitTesting` containing all the 
 This is how you would use SplitTesting.js in ES6 to create an experiment:
 
 ```javascript
-import { setExperiment, getPickedVariant } from 'split-testing';
+import { setExperiment } from 'split-testing';
 
-// Configuration of the experiment 
-const experimentName = 'abtest-basic'
-const variants = [
-  { name: 'control', data: {} },
-  { name: 'test', data: {} }
-]
-
-// Setting up the experiment
-setExperiment({
-  name: experimentName,
-  variants,
-  onVariantPicked: (pickedVariant) => {
-    // Callback when this experiment had no variant saved in localStorage yet
-    // Example of action: sending an event to analytics with the variant picked
-  }
+const pickedVariant = setExperiment({
+  name: 'my-first-ab-test',
+  variants: [
+    { name: 'control', data: {} },
+    { name: 'test', data: {} }
+  ]
 })
-
-// Getting the variant of the user
-const pickedVariant = getPickedVariant({ experimentName, variants })
-
-/* Execute your code here with the pickedVariant.data variable */
 ```
 
 There is only two options mandatory for setting up the experiment : `name` and `variants`.
 
-During the set up method, if no variant is detected in localStorage, one will be randomly picked (same chance for all the variants if no weight provided), which will trigger the `onVariantPicked` method if present in the options.
+The value returned by `setExperiment` is the variant that has been picked or retrieved in storage.
 
-The code is fully [declarative](https://www.freecodecamp.org/news/imperative-vs-declarative-programming-difference/), so the library is using the name of the experiment for saving the variant (and the seed if provided) in localStorage, that's why we need to pass the `experimentName` or `variants` in the method `pickedVariant` for example.
+## Real Usage
 
-## Advance Usage
+### Custom storage
 
-### 1) Seeded variant
+By default the picked variant is saved in `window.localStorage`, but you can change that by defining your own `storage` property (see `/src/types.ts` for type definition).
 
-For more persistance, you can add a `seed` property, it will have for effect to always return the same variant.
+For example, if you want to save the variant in cookies, you could do :
 
 ```javascript
-SplitTesting.setExperiment({
-  name: 'abtest-seed', // Constant seed
+import { setExperiment } from 'split-testing';
+import Cookies from 'js-cookie'
+
+const pickedVariant = setExperiment({
+  name: 'my-first-ab-test',
   variants: [
     { name: 'control' },
-    { name: 'test' } // Always picked
+    { name: 'test' }
   ],
-  seed: 'a constant string'
+  storage: {
+    getItem(key) {
+      return Cookies.get(key) ?? null
+    },
+    setItem(key, value) {
+      Cookies.set(key, value, { expires: 365 })
+    },
+    removeItem(key) {
+      Cookies.remove(key)
+    }
+  }
 })
 ```
 
-For example, by putting the userID as the seed: **the variant will be consistent whatever the device used by the user.**
+This custom storage allows proper SSR with your JS framework, for example with NuxtJS 3 :
+```javascript
+storage: {
+  getItem(key) {
+    return useCookie(key) ?? null
+  },
+  setItem(key, value) {
+    const oneYearFromNow = new Date().setFullYear(new Date().getFullYear() + 1)
+    let newCookie = useCookie(key, { expires: oneYearFromNow })
+    newCookie.value = value
+  },
+  removeItem(key) {
+    let cookie = useCookie(key)
+    cookie.value = null
+  }
+}
+```
 
-**To know**: If a variant is already set (seeded or not) and a different seed from the variant's one is detected, then the variant will change for respecting the new seed.
-You can disallow this behavior by putting `resolveSeedConflict: false` in the options of `setExperiment` (not recommended). 
 
-### 2) Weighted variant
+### Weighted variant
 
 By default all variants have the same probability of being picked at first load, but you can change that with the `weight` property :
 
 ```javascript
-SplitTesting.setExperiment({
+setExperiment({
   name: 'abtest-weighted',
   variants: [
     { name: 'control', weight: 0.50 }, // 50% chance of being picked
@@ -105,41 +116,87 @@ SplitTesting.setExperiment({
 })
 ```
 
-**To know** - The weight values will be reseted to the default ones if :
+**To know** - The weight values will be reseted in case of :
 - The total of all weight is not equal to 1
 - Some variants have a weight property and others no
 
-In those cases, a warning will be present in the console.
+In those cases, a warning will be logged into the console.
 
-## Error-free code
 
-If there is a problem with the seed of with the weights of the variants, SplitTesting.js will automatically resolve it and warn you about it in the console.
+### Seeded variant
 
-However, errors can still happen if one of these conditions is met :
-- At least one of the mandatory options in `setExperiment` is not given
-- A variant saved in localStorage is no more present in the `variants` given
+For cross-device use, you can add a `seed` property, it will have for effect to always return the same variant.
 
-**If your split test is at least tested once without errors, and no change happen in the `variants` variable, then no error should ever occur**
+```javascript
+setExperiment({
+  name: 'my-first-ab-test',
+  variants: [
+    { name: 'control' },
+    { name: 'test' } // Always picked for the same user
+  ],
+  seed: user.id
+})
+```
 
-In case you really don't want any error for sure, the `setExperiment` method returns a boolean making an error-free code and fully secure experiment possible.
+**Warning**: If a variant is already set (seeded or not) and a different seed from the variant's one is detected, then the variant will change for respecting the new seed. You can disallow this behavior by putting `isResolvingSeedConflictAllowed: false` in the options of `setExperiment`.
 
-Of course, you can still use a try/catch instead and put your default code in the catch part.
 
-## Debug mode
+### Analytics
+
+If you want to send to your analytics provider the variant that has been picked, and that only one time (not the other times when the variant is simply retrieved from storage), you can use the `onFirstPicking`.
+
+Here is an example by sending the result of the experiment in Plausible Analytics :
+
+```javascript
+setExperiment({
+  name: 'my-first-ab-test',
+  variants: [
+    { name: 'control' },
+    { name: 'test' }
+  ],
+  onFirstPicking: (pickedVariant) => {
+    Plausible.trackEvent('My first A/B test', {
+      variant: pickedVariant.name
+    })
+  }
+})
+```
+
+
+### Debug mode
 
 The debug mode will log various messages of information into the console, allowing you to better understand what the library is doing.
 
-To activate it, simply add `debug: true` to the experiment options :
+To activate it, simply add `isDebugMode: true` to the experiment options :
 ```javascript
-SplitTesting.setExperiment({
-  name: experimentName,
-  variants,
-  debug: true
+setExperiment({
+  isDebugMode: true,
+  name: 'my-first-ab-test',
+  variants: [
+    { name: 'control' },
+    { name: 'test' }
+  ]
 })
+```
+
+
+### Error-free code
+
+In case of error (bad configuration of the `name` and `variants` properties), `setExperiment` can purposefully throw errors, so the best is to write it inside a `try / catch`.
+
+If the code doesn't throw an error in development mode, it shouldn't send one in production either.
+
+## Type definition
+
+You can see the types of the library in the file `src/types.ts`.
+
+For importing the types in your code, just do :
+```typescript
+import type { ExperimentOptions, Variant, Storage } from 'split-testing'
 ```
 
 ## Todo before v1
 
-- **Replacing `localStorage` by `cookies`** for having a SSR-friendly library
-- **Saving the whole variant data** and not just the name in storage
+- ~~**Making a custom storage possible** for having a SSR-friendly library~~
+- **Adding the `removeExperiment`** method for clearing the storage
 - **Adding tests** for securing to the library

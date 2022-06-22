@@ -21,7 +21,9 @@
     "a/b",
     "variant",
     "multivariant",
-    "experiment"
+    "experiment",
+    "ssr",
+    "server"
   ],
   "author": "Bryanoxx",
   "repository": {

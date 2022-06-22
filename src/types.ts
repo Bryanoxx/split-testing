@@ -24,7 +24,13 @@ export interface ExperimentOptions {
   variants: Variant[]
   seed?: string
   onFirstPicking?: (variant: Variant) => void
-  storage: Storage
+  storage?: Storage
   isDebugMode?: boolean
   isResolvingSeedConflictAllowed?: boolean
+}
+
+export interface SafeExperimentOptions extends ExperimentOptions {
+  storage: Storage
+  isDebugMode: boolean
+  isResolvingSeedConflictAllowed: boolean
 }

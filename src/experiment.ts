@@ -1,4 +1,4 @@
-import type { Variant, ExperimentOptions, WeightedVariant } from './types'
+import type { Variant, WeightedVariant, ExperimentOptions, SafeExperimentOptions } from './types'
 import { validateWeightProperties, makeWeightPropertiesEqual, getWeightedRandomElement } from './utils/weight'
 import { makeLogger, warningLogger, createError, deepClone } from './utils/utils'
 
@@ -11,12 +11,13 @@ import { makeLogger, warningLogger, createError, deepClone } from './utils/utils
  */
 export function setExperiment (options: ExperimentOptions): Variant {
   // Extraction of the options
-  const experiment: ExperimentOptions = { ...options }
-  experiment.variants = deepClone(options.variants)
-  experiment.isDebugMode = options.isDebugMode ?? false
-  experiment.isResolvingSeedConflictAllowed = options.isResolvingSeedConflictAllowed ?? false
-  if (window?.localStorage !== undefined) {
-    experiment.storage = experiment.storage ?? window.localStorage
+  const experiment: SafeExperimentOptions = {
+    name: options.name,
+    variants: deepClone(options.variants),
+    seed: options.seed,
+    isDebugMode: options.isDebugMode ?? false,
+    isResolvingSeedConflictAllowed: options.isResolvingSeedConflictAllowed ?? true,
+    storage: options.storage ?? window?.localStorage
   }
 
   // Validation of the options
@@ -29,6 +30,9 @@ export function setExperiment (options: ExperimentOptions): Variant {
   const variantsHaveNames = experiment.variants.every(variant => variant.name !== undefined && variant.name.length > 0)
   if (!variantsHaveNames) {
     throw createError('The variants must have a name')
+  }
+  if (window?.localStorage == null && options.storage == null) {
+    throw createError('No storage available, please define a custom storage property')
   }
 
   // Configuration of the logget depending on the debug mode
@@ -70,10 +74,10 @@ export function setExperiment (options: ExperimentOptions): Variant {
 /**
  * Get all the details of the picked variant from storage
  *
- * @param {ExperimentOptions} experiment
+ * @param {SafeExperimentOptions} experiment
  * @return {*}  {(Variant | undefined)}
  */
-function getPickedVariant (experiment: ExperimentOptions): Variant | null {
+function getPickedVariant (experiment: SafeExperimentOptions): Variant | null {
   // Name of the picked variant
   const pickedVariantName = experiment.storage.getItem(`ST-${experiment.name}-variant-name`)
   if (pickedVariantName === null) {
@@ -88,11 +92,11 @@ function getPickedVariant (experiment: ExperimentOptions): Variant | null {
 /**
  * Set the name and seed of the picked variant in storage
  *
- * @param {ExperimentOptions} { name: experimentName, storage, seed }
+ * @param {SafeExperimentOptions} { name: experimentName, storage, seed }
  * @param {Variant} pickedVariant
  * @param {ReturnType<typeof makeLogger>} log
  */
-function setPickedVariant ({ name: experimentName, storage, seed }: ExperimentOptions, pickedVariant: Variant, log: ReturnType<typeof makeLogger>): void {
+function setPickedVariant ({ name: experimentName, storage, seed }: SafeExperimentOptions, pickedVariant: Variant, log: ReturnType<typeof makeLogger>): void {
   storage.setItem(`ST-${experimentName}-variant-name`, pickedVariant.name)
   log(`New picked variant: ${pickedVariant.name} ${seed !== undefined ? '(with seed)' : ''}`)
 
@@ -107,11 +111,11 @@ function setPickedVariant ({ name: experimentName, storage, seed }: ExperimentOp
 /**
  * Pick and save the variant of the experiment in storage
  *
- * @param {ExperimentOptions} { name: experimentName, variants, storage, seed, onFirstPicking }
+ * @param {SafeExperimentOptions} { name: experimentName, variants, storage, seed, onFirstPicking }
  * @param {ReturnType<typeof makeLogger>} log
  */
 function pickAndSetVariant (
-  experiment: ExperimentOptions,
+  experiment: SafeExperimentOptions,
   log: ReturnType<typeof makeLogger>
 ): Variant {
   // Extracting some properties
@@ -135,10 +139,10 @@ function pickAndSetVariant (
 /**
  * Check if the local seed and the given seed are consistent.
  *
- * @param {ExperimentOptions} { name: experimentName, seed, storage }
+ * @param {SafeExperimentOptions} { name: experimentName, seed, storage }
  * @return {*}  {boolean}
  */
-function sameLocalAndGivenSeed ({ name: experimentName, seed, storage }: ExperimentOptions): boolean {
+function sameLocalAndGivenSeed ({ name: experimentName, seed, storage }: SafeExperimentOptions): boolean {
   const localSeed = storage.getItem(`ST-${experimentName}-seed`)
   return localSeed === seed
 }
