@@ -86,10 +86,11 @@ This custom storage allows proper SSR with your JS framework, for example with N
 ```javascript
 storage: {
   getItem(key) {
-    return useCookie(key) ?? null
+    return useCookie(key)?.value ?? null
   },
   setItem(key, value) {
-    const oneYearFromNow = new Date().setFullYear(new Date().getFullYear() + 1)
+    const currentDate = new Date()
+    const oneYearFromNow = new Date(currentDate.setFullYear(currentDate.getFullYear() + 1))
     let newCookie = useCookie(key, { expires: oneYearFromNow })
     newCookie.value = value
   },
