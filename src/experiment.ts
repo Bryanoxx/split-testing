@@ -10,6 +10,22 @@ import { makeLogger, warningLogger, createError, deepClone } from './utils/utils
  * @return {*}  {boolean}
  */
 export function setExperiment (options: ExperimentOptions): Variant {
+  // Validation of the options
+  if (typeof options.name !== 'string' || options.name.length === 0) {
+    throw createError('The experiment name must be a non-empty string')
+  }
+  if (!Array.isArray(options.variants) || options.variants.length === 0) {
+    throw createError('The variants must be an array of at least one element')
+  }
+  const variantsHaveNames = options.variants.every(variant => variant.name !== undefined && variant.name.length > 0)
+  if (!variantsHaveNames) {
+    throw createError('The variants must have a name')
+  }
+  options.storage = options.storage ?? (globalThis.window !== undefined ? globalThis.window.localStorage : undefined)
+  if (options.storage === undefined) {
+    throw createError('No storage available, please define a custom storage property')
+  }
+
   // Extraction of the options
   const experiment: SafeExperimentOptions = {
     name: options.name,
@@ -17,22 +33,7 @@ export function setExperiment (options: ExperimentOptions): Variant {
     seed: options.seed,
     isDebugMode: options.isDebugMode ?? false,
     isResolvingSeedConflictAllowed: options.isResolvingSeedConflictAllowed ?? true,
-    storage: options.storage ?? window?.localStorage
-  }
-
-  // Validation of the options
-  if (typeof experiment.name !== 'string' || experiment.name.length === 0) {
-    throw createError('The experiment name must be a non-empty string')
-  }
-  if (!Array.isArray(experiment.variants) || experiment.variants.length === 0) {
-    throw createError('The variants must be an array of at least one element')
-  }
-  const variantsHaveNames = experiment.variants.every(variant => variant.name !== undefined && variant.name.length > 0)
-  if (!variantsHaveNames) {
-    throw createError('The variants must have a name')
-  }
-  if (window?.localStorage == null && options.storage == null) {
-    throw createError('No storage available, please define a custom storage property')
+    storage: options.storage
   }
 
   // Configuration of the logget depending on the debug mode
