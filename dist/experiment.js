@@ -28,14 +28,7 @@ function setExperiment(options) {
         throw (0, utils_1.createError)('No storage available, please define a custom storage property');
     }
     // Extraction of the options
-    const experiment = {
-        name: options.name,
-        variants: (0, utils_1.deepClone)(options.variants),
-        seed: options.seed,
-        isDebugMode: (_b = options.isDebugMode) !== null && _b !== void 0 ? _b : false,
-        isResolvingSeedConflictAllowed: (_c = options.isResolvingSeedConflictAllowed) !== null && _c !== void 0 ? _c : true,
-        storage: options.storage
-    };
+    const experiment = Object.assign(Object.assign({}, options), { name: options.name, variants: (0, utils_1.deepClone)(options.variants), seed: options.seed, isDebugMode: (_b = options.isDebugMode) !== null && _b !== void 0 ? _b : false, isResolvingSeedConflictAllowed: (_c = options.isResolvingSeedConflictAllowed) !== null && _c !== void 0 ? _c : true, storage: options.storage });
     // Configuration of the logget depending on the debug mode
     const logger = (0, utils_1.makeLogger)(experiment.isDebugMode);
     logger('Running split testing with these options :');

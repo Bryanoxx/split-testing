@@ -28,6 +28,7 @@ export function setExperiment (options: ExperimentOptions): Variant {
 
   // Extraction of the options
   const experiment: SafeExperimentOptions = {
+    ...options,
     name: options.name,
     variants: deepClone(options.variants),
     seed: options.seed,
