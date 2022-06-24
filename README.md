@@ -7,7 +7,7 @@
   <a href="https://www.npmjs.com/package/split-testing"><img src="https://badgen.net/npm/license/split-testing" alt="License"></a>
 </p>
 
-This library allows you to easily implement split testing to your website in only 3.08kb (size of the bundle.js file).
+This library allows you to easily implement split testing to your website in only 3.5kb (size of the bundle.js file).
 
 It's fully written in TypeScript and here are the features you benefit :
 - Custom storage of the variant (SSR-friendly)
